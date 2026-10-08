@@ -1,6 +1,7 @@
 # 刷牙打怪兽 · PersonalAI Chrome 验收工程
 
-本项目留在 PersonalAI Mac 上，用于复验和后续迭代，不是公网部署。
+源码和自动化测试保存在 PersonalAI Mac 上，可复验、继续迭代；
+`pwa/` 子目录同步发布为 GitHub Pages 的 HTTPS 公网游戏。
 
 **在线版本：** https://arthurwangwsx-code.github.io/brush-monsters/
 
@@ -15,12 +16,12 @@
 而非指向单文件的 `main` 分支。更新步骤：
 
 ```bash
-git subtree split --prefix=pwa -b gh-pages
+git branch -f gh-pages "$(git subtree split --prefix=pwa)"
 git push origin main gh-pages
 ```
 
-后续更新分支可以用 `git branch -f gh-pages "$(git subtree split --prefix=pwa)"`
-然后 `git push origin main gh-pages`，确保更新测试通过后再发布。
+首次创建公开 Pages 项目后已经配置了 `gh-pages` / 根目录；
+日后执行上述命令前须先运行并通过测试，不应直接发布未经验证的分支。
 
 运行本地静态站点（一个终端）：`python3 -m http.server 8765 --bind 127.0.0.1`
 
@@ -30,13 +31,12 @@ git push origin main gh-pages
 - `python3 tests/test_pwa.py`：PWA 注册、缓存、离线启动与恢复 9 项。
 - `python3 tests/test_pwa_update.py`：带临时 HTTP Server 的缓存更新验证 6 项。
 - `python3 tests/test_file_preview.py`：模拟文件预览禁用 JS 的情况，检查可见兜底链接。
+- `python3 tests/test_mobile_webkit.py`：iPhone WebKit 触屏视口，检查倒计时和续刷。
+- `python3 tests/test_live_site.py`：对公网 HTTPS 链接进行 Chrome + 离线恢复验收。
 
-已在 2026-10-08 运行，全部通过。单文件版本 SHA-256：
-`6a8d04fe982800d94b86825b34a3b7ea40528c2b902363346e20056981ee62d8`，
-与 ChatGPT 交付的最新 HTML 完全一致。
+2026-10-08 已通过 Chrome 本地源、WebKit iPhone 触屏视口和公网 HTTPS 的测试。
+静态站点所有公开资源均响应 200；断网后也能恢复游戏进度。
+PWA 的 192/512 图标已由可爱的 SVG 怪兽图标生成，不再是临时白圆圈。
 
-PWA 目录里的游戏 CSS/JavaScript 与交付包逻辑一致；`icon-192.png`、
-`icon-512.png` 是为了让本地 SW 安装测试成功而生成的**测试占位图标**，
-并不是交付包中正式图标。最终源代码 ZIP 中有正式的 192/512 PNG 图标。
-
-这些验证不证明 iPhone Safari、实际中文语音或公网 HTTPS 已通过。
+**边界：** WebKit 的 iPhone 模拟视口不等于真实 iPhone Safari；
+中文语音是否真正发声、iOS 添加到主屏幕后的交互和 Safari 持久化，仍需真实设备验收。
