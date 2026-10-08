@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+  <meta name="theme-color" content="#f4faff">
+  <meta name="description" content="适合4～8岁孩子的两分钟刷牙小游戏，自动分区、语音鼓励、星星打卡和怪兽图鉴。">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%236778E8'/%3E%3Ctext x='32' y='48' text-anchor='middle' font-size='44'%3E%F0%9F%AA%A5%3C/text%3E%3C/svg%3E">
+        <style>
+:root {
+  color-scheme: light;
+  --ink: #26335d;
+  --quiet: #7d8bac;
+  --blue: #586de8;
+  --blue-dark: #455bd5;
+  --mint: #d9f9ed;
+  --white: #fff;
+  --cream: #fffaf0;
+  --shadow: 0 13px 30px rgba(71, 91, 157, .105);
+  --r: 27px;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  color: var(--ink); background: #eaf4ff;
+}
+button, input { font: inherit; }
+button { -webkit-tap-highlight-color: transparent; cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 3px solid #f8ab4e; outline-offset: 3px; }
+[hidden] { display: none !important; }
+.app-shell {
+  width: min(100%, 470px); min-height: 100vh; min-height: 100dvh;
+  margin: 0 auto; overflow: hidden; position: relative;
+  padding: max(env(safe-area-inset-top, 0px), 16px) 19px max(env(safe-area-inset-bottom, 0px), 18px);
+  background:
+    radial-gradient(ellipse at 95% 12%, rgba(255, 239, 188, .9) 0, transparent 36%),
+    radial-gradient(ellipse at 2% 49%, rgba(220, 255, 238, .7) 0, transparent 38%),
+    linear-gradient(176deg, #f3faff 0%, #f8fcff 47%, #ecf8fd 100%);
+}
+.loading-view { margin: 42vh auto; text-align: center; font-size: 19px; font-weight: 850; }
+.topbar { display:flex; align-items:center; justify-content:space-between; min-height:40px; margin-bottom: 16px; gap:12px; }
+.brand { display:flex; align-items:center; gap:8px; font-size: 16px; letter-spacing: .4px; font-weight:900; }
+.brand-dot { width:34px; height:34px; border-radius:12px; display:grid; place-items:center; background:#fff; box-shadow:0 3px 9px #6479d721; font-size:20px; }
+.small-icon-btn, .gate-btn, .back-btn { border:0; background:#fff; color:var(--ink); min-width:43px; min-height:43px; border-radius:16px; box-shadow:0 3px 9px #6479d715; display:grid; place-items:center; }
+.gate-btn { font-size:17px; touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; position:relative; }
+.gate-btn::after { content:""; position:absolute; inset:2px; border-radius:14px; border: 3px solid transparent; transition:border-color .2s; pointer-events:none; }
+.gate-btn.holding::after { border-color:#7edbc4; animation:holding .55s linear infinite alternate; }
+@keyframes holding { from{opacity:.2} to{opacity:1} }
+.card { background:#fff; border-radius:var(--r); box-shadow:var(--shadow); }
+.home-hero { border-radius:32px; background:linear-gradient(154deg, #eaf0ff 0%, #f8f4ff 63%, #fff2ef 100%); padding:22px 20px 14px; position:relative; overflow:hidden; text-align:center; }
+.home-hero::before { content:""; position:absolute; width:155px; height:155px; top:-100px; left:-68px; background:#d4faf0; border-radius:50%; }
+.overline { text-transform:uppercase; font-weight:900; letter-spacing:2px; color:#7182cc; font-size:11px; position:relative; }
+.hero-title { font-weight:1000; font-size:clamp(28px,8.5vw,38px); line-height:1.14; letter-spacing:-1.5px; margin:7px 0 7px; position:relative; }
+.hero-copy { color:#7784a4; font-size:13px; font-weight:700; position:relative; }
+.monsters-party { display:flex; align-items:flex-end; justify-content:center; gap:0; height:180px; margin-top:4px; }
+.mini-party { width:33%; max-width:128px; animation:float 2.7s ease-in-out infinite; filter:drop-shadow(0 7px 6px rgba(98, 84, 140, .14)); }
+.mini-party:nth-child(2) { width:42%; max-width:164px; z-index:2; animation-delay:-.9s; }
+.mini-party:nth-child(3) { animation-delay:-1.5s; }
+.home-floor { height:22px; border-radius:50%; background:rgba(132,144,207,.1); margin:-13px 14px 2px; }
+@keyframes float { 0%,100%{transform:translateY(1px) rotate(-2deg)} 50%{transform:translateY(-7px) rotate(3deg)} }
+.session-card { margin-top:14px; padding:17px 16px; }
+.sec-heading { font-size:14px; color:#425078; font-weight:900; margin:0 0 12px; display:flex; justify-content:space-between; }
+.sec-heading small { color:#929eb6; font-weight:700; }
+.slot-switch { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+.slot { border:2px solid #edf1fc; border-radius:16px; min-height:55px; background:#f8fbff; color:#69769c; text-align:center; font-size:15px; font-weight:900; position:relative; }
+.slot.selected { background:#e8ecff; border-color:#7e8cff; color:#354db7; }
+.slot .done-mark { display:inline-block; margin-left:4px; font-size:13px; }
+.home-primary { margin-top:15px; }
+.primary-btn { border:0; color:white; background:linear-gradient(140deg,#768cff,#5065dd); border-radius:21px; padding:16px 20px; min-height:63px; width:100%; font-size:20px; font-weight:1000; letter-spacing:.3px; box-shadow:0 9px 0 #4055bf, 0 13px 23px #556ade2d; transition:transform .13s,box-shadow .13s; }
+.primary-btn:active { transform:translateY(5px); box-shadow:0 4px 0 #4055bf,0 7px 16px #556ade2d; }
+.btn-caption { margin:13px 0 0; text-align:center; color:#7c89a9; font-size:12px; font-weight:750; }
+.home-stats { display:grid; grid-template-columns:1fr 1fr; gap:11px; margin-top:15px; }
+.stat-card { display:flex; justify-content:space-between; align-items:center; background:#fff; border-radius:19px; padding:13px 14px; min-height:80px; border:0; text-align:left; box-shadow:0 5px 13px #6175ac11; }
+.stat-label { color:#8290b0; font-weight:800; font-size:12px; }
+.stat-number { display:block; font-size:25px; font-weight:1000; letter-spacing:-.7px; line-height:1.2; margin-top:3px; }
+.stat-icon { font-size:29px; }
+.home-note { color:#8b97b0; font-size:11px; text-align:center; margin:17px 0 6px; line-height:1.6; }
+/* Game */
+.game-topbar { margin-bottom:12px; }
+.game-title-line { display:flex; align-items:flex-end; justify-content:space-between; gap:8px; margin-bottom:7px; }
+.game-kicker { font-weight:900; font-size:12px; color:#7282c5; }
+.game-title { margin:3px 0 0; font-size:26px; font-weight:1000; letter-spacing:-.4px; }
+.total-clock { color:#7a88a6; font-weight:850; font-size:13px; background:#fff; border-radius:20px; padding:9px 12px; white-space:nowrap; }
+.progress-track { height:9px; background:#e5eaf9; border-radius:20px; overflow:hidden; }
+.progress-fill { height:100%; background:linear-gradient(90deg,#8edddd,#7d8cf7); width:0%; border-radius:inherit; transition:width .15s linear; }
+.phase-pills { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin-top:9px; margin-bottom:12px; }
+.phase-pill { font-size:11px; text-align:center; border-radius:9px; padding:6px 2px; font-weight:850; color:#98a2b9; background:#eef3fb; white-space:nowrap; }
+.phase-pill.active { background:#566be4; color:#fff; }
+.phase-pill.passed { background:#d8f7eb; color:#399c80; }
+.arena { position:relative; isolation:isolate; min-height:305px; overflow:hidden; padding:13px 16px 11px; border-radius:28px; border:2px solid #f8f8ff; background:radial-gradient(circle at 50% 30%,#fff 0%,#f0efff 57%,#e9efff 100%); text-align:center; box-shadow:var(--shadow); }
+.arena::before, .arena::after { content:""; position:absolute; width:140px; height:140px; background:#fff8cf; filter:blur(3px); border-radius:50%; z-index:-1; opacity:.5; }
+.arena::before { top:-87px; left:-77px; }
+.arena::after { bottom:-102px; right:-60px; }
+.arena-top { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.monster-chip { background:#fff; border-radius:30px; color:#796bb1; padding:7px 11px; font-size:12px; font-weight:900; }
+.monster-hp-text { color:#8c91b8; font-size:11px; font-weight:850; }
+.hp-track { margin:9px 0 0; width:100%; height:9px; background:#dce3fa; overflow:hidden; border-radius:10px; }
+.hp-fill { height:100%; width:100%; border-radius:10px; background:linear-gradient(90deg,#f3bfcf,#fa788a); transition:width .13s linear; }
+.monster-stage { height:160px; position:relative; display:grid; place-items:center; margin:0 auto; }
+.monster-svg { height:156px; width:210px; max-width:80%; animation:monster-wiggle 1.8s ease-in-out infinite; filter: drop-shadow(0 9px 5px rgba(126, 104, 169, .12)); transform-origin:50% 80%; }
+@keyframes monster-wiggle { 0%,100%{transform:translateY(2px) rotate(-2deg)} 50%{transform:translateY(-5px) rotate(2.5deg)} }
+.monster-stage.defeated .monster-svg { animation:monster-bye .68s ease-in forwards; }
+@keyframes monster-bye { 0%{transform:scale(1);opacity:1} 55%{transform:scale(1.1) rotate(8deg);opacity:1} 100%{transform:scale(.08) translateY(-180px);opacity:0} }
+.bubble { position:absolute; border-radius:50%; pointer-events:none; border:2px solid #fff; box-shadow:inset 3px 2px 5px #ffffffb8,0 3px 10px #72cfcf50; background:linear-gradient(140deg,#bcfff6a0,#b8b6ff80); animation:bubblefly 2.9s ease-in-out infinite; }
+.bubble:nth-child(2){width:20px;height:20px;top:10%;left:19%;animation-delay:-.4s}
+.bubble:nth-child(3){width:12px;height:12px;top:36%;right:9%;animation-delay:-1.4s}
+.bubble:nth-child(4){width:26px;height:26px;bottom:15%;left:9%;animation-delay:-2.0s}
+.bubble:nth-child(5){width:14px;height:14px;bottom:6%;right:24%;animation-delay:-.9s}
+.bubble:nth-child(6){width:9px;height:9px;top:6%;right:22%;animation-delay:-2.2s}
+@keyframes bubblefly { 0%,100%{transform:translateY(8px) scale(.9)} 50%{transform:translateY(-12px) scale(1.07)} }
+.monster-stage.defeated .bubble { animation:pop-away .85s ease-out forwards; }
+@keyframes pop-away { to{transform:translateY(-70px) scale(2);opacity:0} }
+.timer-line { display:flex; align-items:baseline; justify-content:center; gap:6px; line-height:1; margin-top:-4px; }
+.timer-number { font-weight:1000; font-size:58px; letter-spacing:-2.5px; font-variant-numeric:tabular-nums; color:#344778; }
+.timer-unit { font-size:16px; font-weight:900; color:#8590b7; }
+.timer-explain { color:#8794b7; font-size:12px; font-weight:850; padding-top:2px; }
+.defeat-ribbon { position:absolute; inset:0; display:none; align-items:center; justify-content:center; background:#e3fff7c9; z-index:3; font-size:26px; font-weight:1000; color:#429f8c; text-shadow:0 2px #fff; animation:appear .22s ease-out; }
+.arena.defeat .defeat-ribbon { display:flex; }
+@keyframes appear { from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)} }
+.map-card { margin-top:11px; padding:13px 14px 12px; display:flex; align-items:center; gap:13px; }
+.map-intro { width:36%; min-width:100px; }
+.map-intro strong { display:block; font-size:15px; font-weight:1000; line-height:1.3; }
+.map-intro p { font-size:11px; line-height:1.55; color:#8d9ab3; font-weight:750; margin:7px 0 0; }
+.mouth-grid { flex:1; display:grid; grid-template-columns:1fr 1fr; gap:6px; background:#e6f0f9; border:5px solid #e6f0f9; border-radius:27px; transform:rotate(-1deg); }
+.mouth-area { min-height:52px; position:relative; border-radius:15px; text-align:center; background:#fff; padding:6px 1px 4px; border:2px solid transparent; opacity:.53; transition:transform .2s,opacity .2s; }
+.mouth-area .teeth { height:21px; display:flex; justify-content:center; gap:0; }
+.mouth-area .teeth svg { width:20px; height:21px; margin-left:-3px; }
+.mouth-area .area-name { display:block; font-size:11px; font-weight:1000; color:#6f7e9e; line-height:1.2; }
+.mouth-area.active { background:#fff5d7; opacity:1; border-color:#ffcd6a; transform:scale(1.07); box-shadow:0 3px 6px #ffc66e38; z-index:1; }
+.mouth-area.active .area-name { color:#b67b0a; }
+.mouth-area.active::after { content:"🪥"; position:absolute; font-size:23px; top:-11px; right:-11px; animation:brush .65s ease-in-out infinite alternate; filter:drop-shadow(0 2px 2px #fff); }
+@keyframes brush { from{transform:rotate(8deg) translateY(0)}to{transform:rotate(-20deg) translateY(4px)} }
+.voice-banner { display:flex; align-items:center; gap:10px; margin-top:12px; border-radius:19px; background:#fff; padding:11px 14px; color:#61749d; font-size:13px; line-height:1.45; font-weight:850; min-height:54px; }
+.voice-emoji { display:grid; place-items:center; width:32px; height:32px; flex:0 0 32px; background:#e4f8f1; border-radius:12px; font-size:17px; }
+.bottom-actions { margin-top:11px; display:flex; gap:10px; }
+.secondary-btn { border:0; background:#fff; color:#687bb7; border-radius:16px; font-weight:900; font-size:14px; min-height:47px; padding:10px 16px; box-shadow:0 4px 14px #5874b718; }
+.bottom-actions .secondary-btn { width:100%; }
+/* Victory */
+.victory { text-align:center; padding-top:8vh; }
+.star-dazzle { position:relative; font-size:114px; line-height:1.35; filter:drop-shadow(0 8px 8px #fbd46958); animation:star-in .9s cubic-bezier(.2,1.5,.5,1) both; }
+@keyframes star-in { from{transform:rotate(-30deg) scale(.15);opacity:0}to{transform:rotate(8deg) scale(1);opacity:1} }
+.victory h1 { font-size:31px; font-weight:1000; line-height:1.3; margin:12px 0 8px; }
+.victory-lead { color:#7889aa; font-weight:800; font-size:15px; line-height:1.65; }
+.reward-card { text-align:left; padding:17px 18px; margin:30px 0 20px; }
+.reward-stats { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.reward-stat { background:#f3f7ff; border-radius:15px; text-align:center; padding:12px; }
+.reward-stat strong { display:block; font-size:25px; }
+.reward-stat small { color:#7787ac; font-size:12px; font-weight:750; }
+.unlock-toast { background:#fff5df; padding:12px 14px; margin-top:12px; border-radius:13px; text-align:left; color:#92703a; line-height:1.6; font-size:13px; font-weight:800; }
+/* Collection */
+.page-h { font-size:29px; font-weight:1000; margin:8px 0; }
+.page-sub { color:#8a97b1; font-size:13px; line-height:1.6; margin:0 0 17px; font-weight:700; }
+.collection-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; }
+.monster-card { border-radius:20px; background:#fff; min-height:177px; padding:11px 10px; position:relative; text-align:center; box-shadow:0 4px 14px #6078ad12; overflow:hidden; }
+.monster-card svg { width:116px; height:106px; max-width:100%; display:block; margin:auto; }
+.monster-card.locked svg { filter:grayscale(1); opacity:.21; }
+.monster-card.locked::after { content:"🔒"; position:absolute; top:47px; left:50%; transform:translateX(-50%); font-size:31px; }
+.monster-name { font-weight:1000; font-size:15px; margin-top:2px; }
+.monster-requirement { margin-top:3px; font-size:11px; font-weight:850; color:#8897b5; }
+.rarity-pill { display:inline-block; font-size:10px; background:#eaf5f3; padding:4px 8px; border-radius:20px; color:#5da393; font-weight:900; }
+.rarity-pill.rare { background:#f0eaff; color:#9479d7; }
+.rarity-pill.legendary { background:#fff0d4; color:#d38b2e; }
+/* Parent and gate */
+.gate-page { padding-top:7vh; text-align:center; }
+.gate-lock { font-size:65px; margin-bottom:7px; }
+.gate-form { max-width:315px; background:white; padding:24px 20px; border-radius:26px; margin:24px auto; box-shadow:var(--shadow); }
+.gate-equation { font-size:35px; font-weight:1000; padding:6px 0 18px; letter-spacing:3px; }
+.gate-input { display:block; width:100%; min-height:57px; font-size:28px; text-align:center; border:2px solid #d5e1fb; border-radius:14px; margin-bottom:18px; outline:0; }
+.inline-note { font-size:12px; color:#a07e72; min-height:25px; padding-top:9px; font-weight:750; }
+.parent-banner { background:#e8f0ff; border-radius:20px; padding:13px 15px; color:#667ba8; font-size:12px; line-height:1.6; font-weight:800; }
+.parent-stats { margin:14px 0; display:grid; grid-template-columns:repeat(3,1fr); gap:9px; }
+.parent-stat { padding:14px 6px; background:white; border-radius:18px; text-align:center; box-shadow:0 4px 14px #5874b710; }
+.parent-stat strong { display:block; font-size:23px; font-weight:1000; }
+.parent-stat small { font-size:10px; font-weight:850; color:#8e9bb3; }
+.parent-block { padding:16px 14px; margin-top:14px; }
+.parent-block h2 { font-size:17px; font-weight:1000; margin:0 0 6px; }
+.parent-block p { margin:0 0 12px; color:#8796ae; font-size:12px; line-height:1.5; }
+.history-list { margin-top:10px; max-height:285px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+.history-row { display:grid; grid-template-columns:1.3fr .8fr .8fr; align-items:center; gap:5px; min-height:37px; border-bottom:1px solid #f0f3f8; font-size:12px; text-align:center; font-weight:750; }
+.history-row span:first-child { text-align:left; color:#6c7e9d; }
+.history-row.header { color:#9aa7bc; font-size:11px; position:sticky; top:0; background:#fff; z-index:1; }
+.check-yes { color:#35a88d; background:#e5f8f0; border-radius:20px; padding:3px 7px; display:inline-block; min-width:34px; }
+.check-no { color:#b7c1d1; }
+.duration-row { display:flex; justify-content:space-between; align-items:center; gap:8px; min-height:54px; border-bottom:1px solid #f2f5fb; }
+.duration-row:last-child { border-bottom:0; }
+.duration-name { font-size:14px; font-weight:900; }
+.duration-control { display:flex; align-items:center; gap:7px; }
+.adjust-btn { width:36px; height:36px; border:0; border-radius:12px; background:#edf1ff; color:#586aca; font-size:22px; font-weight:900; }
+.adjust-btn:disabled { opacity:.35; cursor:not-allowed; }
+.duration-value { min-width:48px; font-size:16px; font-weight:1000; text-align:center; font-variant-numeric:tabular-nums; }
+.tools-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:15px; }
+.tools-row button { flex:1; min-width:104px; }
+.parent-disclaimer { color:#95a1b6; font-size:11px; line-height:1.65; margin:13px 4px 0; }
+.error-banner { background:#fff2e5; border:1px solid #f2c7a2; padding:10px 12px; font-size:12px; font-weight:750; color:#a45b3d; border-radius:12px; margin-bottom:11px; }
+.muted-tip { font-size:11px; margin-top:5px; color:#8591ae; font-weight:800; text-align:center; }
+@media (max-width:370px) {
+  .app-shell { padding-left:13px; padding-right:13px; }
+  .monsters-party { height:155px; }
+  .hero-title { font-size:29px; }
+  .arena { min-height:288px; }
+  .monster-stage { height:145px; }
+  .monster-svg { height:140px; }
+  .mouth-area { min-height:47px; }
+}
+@media (max-height:760px) {
+  .game-topbar { margin-bottom:6px; }
+  .topbar { margin-bottom:9px; }
+  .game-title { font-size:23px; }
+  .phase-pills { margin-top:5px; margin-bottom:7px; }
+  .arena { min-height:274px; padding-top:8px; padding-bottom:8px; }
+  .monster-stage { height:134px; }
+  .monster-svg { height:131px; }
+  .timer-number { font-size:50px; }
+  .map-card { margin-top:8px; padding:9px 11px; }
+  .mouth-area { min-height:45px; }
+  .voice-banner { margin-top:8px; min-height:44px; padding:7px 12px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
+
+</style>
+  <title>刷牙打怪兽 · 牙牙星球</title>
+</head>
+<body>
+  <div class="app-shell" id="app">
+    <div class="loading-view">牙牙星球正在起飞… 🪥</div>
+  </div>
+  <script>
+/* 刷牙打怪兽：纯前端、无账号、无第三方依赖。数据仅保存在当前浏览器。 */
+(() => {
+  'use strict';
+
+  const STORE_KEY = 'yaya-brush-monsters:v1';
+  const ZONES = ['右上', '左上', '左下', '右下'];
+  const ZONE_GUIDES = [
+    '刷你的右上牙，轻轻转圈圈！',
+    '刷你的左上牙，外侧内侧都要刷！',
+    '刷你的左下牙，小牙刷慢慢走！',
+    '刷你的右下牙，最后一关加油！'
+  ];
+  const MONSTERS = [
+    { id:'tangerine', name:'橘子啵', zone:0, need:0, rarity:'普通', color:'#ffbd93', pale:'#ffe6cc', shade:'#ed8d80', shape:'round', ears:'horn' },
+    { id:'cotton', name:'棉花喵', zone:1, need:0, rarity:'普通', color:'#f4a6d1', pale:'#ffe1ef', shade:'#dd84b6', shape:'cloud', ears:'ear' },
+    { id:'bubble', name:'泡泡菇', zone:2, need:0, rarity:'普通', color:'#92cfff', pale:'#ddf4ff', shade:'#70b1e6', shape:'round', ears:'antenna' },
+    { id:'lime', name:'青柠团', zone:3, need:0, rarity:'普通', color:'#a6ddaa', pale:'#e8ffe5', shade:'#80bc8f', shape:'blob', ears:'horn' },
+    { id:'berry', name:'紫莓喵', zone:0, need:2, rarity:'稀有', color:'#b8a6fa', pale:'#ebe4ff', shade:'#8b7bcf', shape:'cloud', ears:'ear' },
+    { id:'nebula', name:'星云啵', zone:1, need:3, rarity:'稀有', color:'#93ced9', pale:'#e4fcff', shade:'#5fafb8', shape:'round', ears:'antenna' },
+    { id:'snowball', name:'雪球球', zone:2, need:5, rarity:'稀有', color:'#b4c9f4', pale:'#edf5ff', shade:'#89a5d6', shape:'cloud', ears:'horn' },
+    { id:'peach', name:'蜜桃云', zone:3, need:7, rarity:'稀有', color:'#ffbdba', pale:'#ffe5dd', shade:'#e894a0', shape:'blob', ears:'ear' },
+    { id:'moon', name:'月亮芽', zone:0, need:10, rarity:'稀有', color:'#cdc0ff', pale:'#f3edff', shade:'#a494dd', shape:'blob', ears:'antenna' },
+    { id:'rainbow', name:'彩虹豆', zone:1, need:14, rarity:'稀有', color:'#9fe3c6', pale:'#eaffeb', shade:'#78bda1', shape:'cloud', ears:'horn' },
+    { id:'spark', name:'闪闪王', zone:2, need:21, rarity:'传说', color:'#f5d68a', pale:'#fff4c8', shade:'#e6b669', shape:'round', ears:'antenna' },
+    { id:'galaxy', name:'银河糖', zone:3, need:30, rarity:'传说', color:'#b9b6f8', pale:'#f0e9ff', shade:'#9692d6', shape:'blob', ears:'ear' }
+  ];
+  const root = document.getElementById('app');
+  if (!root) return;
+
+  const defaultData = () => ({ version:1, records:{}, unlocked:[], settings:{ durations:[30,30,30,30], sound:true }, session:null });
+  let storageOk = true;
+  let data = loadData();
+  let view = 'home';
+  let selectedSlot = new Date().getHours() < 15 ? 'morning' : 'evening';
+  let latestReward = null;
+  let question = null;
+  let holdTimer = null;
+  let transitionTimer = null;
+  let lastTick = 0;
+  let lastSaved = 0;
+  let warnedAtTen = -1;
+  let wakeLock = null;
+
+  const sound = {
+    ctx:null, timer:null, beat:0,
+    init() {
+      if (!data.settings.sound) return;
+      const AudioContextType = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextType) return;
+      try {
+        if (!this.ctx) this.ctx = new AudioContextType();
+        if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
+      } catch (_) { /* sound is optional */ }
+    },
+    note(frequency, length=.16, volume=.023, type='sine', delay=0) {
+      if (!data.settings.sound || !this.ctx) return;
+      try {
+        const t = this.ctx.currentTime + delay;
+        const oscillator = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        oscillator.type = type;
+        oscillator.frequency.setValueAtTime(frequency, t);
+        gain.gain.setValueAtTime(.0001,t);
+        gain.gain.exponentialRampToValueAtTime(volume,t+.025);
+        gain.gain.exponentialRampToValueAtTime(.0001,t+length);
+        oscillator.connect(gain);
+        gain.connect(this.ctx.destination);
+        oscillator.start(t);
+        oscillator.stop(t+length+.02);
+      } catch (_) { /* optional */ }
+    },
+    play() {
+      if (!data.settings.sound || this.timer) return;
+      this.init();
+      const notes=[392,440,523.25,659.25,587.33,523.25,440,493.88,392,523.25,587.33,784,659.25,523.25,440,392];
+      this.beat=0;
+      this.timer=window.setInterval(() => {
+        if (view !== 'game' || !data.session || data.session.phase === 'paused') return;
+        this.note(notes[this.beat % notes.length], .19, .012);
+        this.beat++;
+      }, 415);
+    },
+    stop() {
+      if (this.timer) window.clearInterval(this.timer);
+      this.timer=null;
+      if ('speechSynthesis' in window) { try { window.speechSynthesis.cancel(); } catch (_) {} }
+    },
+    effect(type='pop') {
+      if (!data.settings.sound) return;
+      this.init();
+      if (type==='pop') {
+        this.note(660,.12,.07,'sine'); this.note(880,.23,.05,'sine',.10);
+      } else if (type==='win') {
+        [523.25,659.25,784,1046.5].forEach((n,i) => this.note(n,.36,.048,'sine',i*.15));
+      }
+    },
+    say(message) {
+      if (!data.settings.sound || !('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) return;
+      try {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.lang='zh-CN'; utterance.rate=.89; utterance.pitch=1.2; utterance.volume=.96;
+        const voices=window.speechSynthesis.getVoices();
+        const chinese=voices.find(v => /^zh([-_]|$)/i.test(v.lang));
+        if (chinese) utterance.voice=chinese;
+        window.speechSynthesis.speak(utterance);
+      } catch (_) { /* visible captions remain available */ }
+    }
+  };
+
+  function dayKey(date=new Date()) {
+    const p=n=>String(n).padStart(2,'0');
+    return `${date.getFullYear()}-${p(date.getMonth()+1)}-${p(date.getDate())}`;
+  }
+  function isDateKey(k) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(k)) return false;
+    const [year,month,day]=k.split('-').map(Number);
+    const date=new Date(year,month-1,day);
+    return date.getFullYear()===year && date.getMonth()===month-1 && date.getDate()===day;
+  }
+  function dateNumber(key) {
+    const [y,m,d]=key.split('-').map(Number);
+    return Math.floor(Date.UTC(y,m-1,d)/86400000);
+  }
+  function dateFromNumber(dayNum) {
+    const d=new Date(dayNum*86400000);
+    const p=n=>String(n).padStart(2,'0');
+    return `${d.getUTCFullYear()}-${p(d.getUTCMonth()+1)}-${p(d.getUTCDate())}`;
+  }
+  function cleanData(raw) {
+    const value=defaultData();
+    if (!raw || typeof raw!=='object' || raw.version!==1) return value;
+    if (raw.settings && typeof raw.settings==='object') {
+      if (Array.isArray(raw.settings.durations) && raw.settings.durations.length===4) {
+        value.settings.durations=raw.settings.durations.map(v => Number.isInteger(v) ? Math.max(10,Math.min(90,Math.round(v/5)*5)) : 30);
+      }
+      value.settings.sound=raw.settings.sound!==false;
+    }
+    if (raw.records && typeof raw.records==='object' && !Array.isArray(raw.records)) {
+      Object.keys(raw.records).slice(-5000).forEach(key=>{
+        if (!isDateKey(key)) return;
+        const source=raw.records[key];
+        if (!source || typeof source!=='object') return;
+        const record={};
+        ['morning','evening'].forEach(slot=>{
+          const p=source[slot];
+          if (p && typeof p==='object' && Number.isFinite(p.seconds) && p.seconds>0 && p.seconds<=360 && typeof p.at==='string') {
+            record[slot]={seconds:Math.round(p.seconds),at:p.at.slice(0,40)};
+          }
+        });
+        if (Object.keys(record).length) value.records[key]=record;
+      });
+    }
+    if (Array.isArray(raw.unlocked)) {
+      value.unlocked=raw.unlocked.filter((id,index,arr)=>typeof id==='string' && MONSTERS.some(m=>m.id===id) && arr.indexOf(id)===index);
+    }
+    const s=raw.session;
+    if (s && typeof s==='object' && isDateKey(s.day) && ['morning','evening'].includes(s.slot)
+      && Number.isInteger(s.zoneIndex) && s.zoneIndex>=0 && s.zoneIndex<4
+      && Number.isFinite(s.elapsedMs) && Array.isArray(s.durations) && s.durations.length===4) {
+      value.session={ day:s.day, slot:s.slot, zoneIndex:s.zoneIndex,
+        durations:s.durations.map(n=>Number.isInteger(n) ? Math.max(10,Math.min(90,Math.round(n/5)*5)) : 30),
+        elapsedMs:Math.max(0,Math.min(s.durations[s.zoneIndex]*1000-100,s.elapsedMs)),
+        phase:'paused', monsterId:typeof s.monsterId==='string' ? s.monsterId : null };
+    }
+    return value;
+  }
+  function loadData() {
+    try {
+      const stored=localStorage.getItem(STORE_KEY);
+      return stored ? cleanData(JSON.parse(stored)) : defaultData();
+    } catch (_) {
+      storageOk=false;
+      return defaultData();
+    }
+  }
+  function saveData() {
+    try { localStorage.setItem(STORE_KEY,JSON.stringify(data)); storageOk=true; }
+    catch (_) { storageOk=false; }
+  }
+  function progressDuration(durations) { return durations.reduce((sum,n)=>sum+n,0); }
+  function clockText(secs) {
+    const t=Math.max(0,Math.ceil(secs));
+    return `${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`;
+  }
+  function allStars() { return Object.values(data.records).reduce((n,r)=>n+Number(!!r.morning)+Number(!!r.evening),0); }
+  function completedDays() { return Object.keys(data.records).filter(k=>data.records[k].morning||data.records[k].evening); }
+  function bestStreak() {
+    const nums=completedDays().map(dateNumber).sort((a,b)=>a-b);
+    let best=0,run=0,prev=null;
+    for(const num of nums) { run=num===prev+1 ? run+1 : 1; best=Math.max(best,run); prev=num; }
+    return best;
+  }
+  function currentStreak() {
+    let num=dateNumber(dayKey());
+    const today=dayKey();
+    if (!data.records[today]) num--;
+    let count=0;
+    while (data.records[dateFromNumber(num)]) { count++;num--; }
+    return count;
+  }
+  function syncRareUnlocks() {
+    const streak=bestStreak();
+    const newly=[];
+    for (const monster of MONSTERS) {
+      if (monster.need && streak>=monster.need && !data.unlocked.includes(monster.id)) {
+        data.unlocked.push(monster.id); newly.push(monster);
+      }
+    }
+    return newly;
+  }
+  function nextUnlock() {
+    return MONSTERS.filter(m=>m.need>0&&!data.unlocked.includes(m.id)).sort((a,b)=>a.need-b.need)[0];
+  }
+  function topbar({parent=false,game=false}={}) {
+    const right=parent ? '<button class="back-btn" data-action="home" aria-label="返回首页">✕</button>'
+      : game ? `<div style="display:flex;gap:7px"><button class="small-icon-btn" data-action="sound" aria-label="${data.settings.sound?'静音':'开启声音'}">${data.settings.sound?'🔊':'🔇'}</button><button class="small-icon-btn" data-action="pause" aria-label="暂停刷牙">⏸</button></div>`
+      : '<button class="gate-btn" id="parentGate" aria-label="长按进入家长专区" title="长按2秒开启家长专区">🔒</button>';
+    return `<header class="topbar ${game?'game-topbar':''}"><div class="brand"><span class="brand-dot">🪥</span>牙牙星球 <span style="font-size:11px;color:#9ca8bb;font-weight:800">YAYA PLANET</span></div>${right}</header>`;
+  }
+  function errorBanner() { return storageOk?'':'<div class="error-banner" role="alert">⚠️ 此浏览器无法保存记录；请关闭无痕模式，或检查存储权限。</div>'; }
+  function safeHTML(text) { return String(text).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function monsterSVG(m, className='monster-svg') {
+    const shapes={
+      round:'M119 43 C160 39 192 66 199 104 C206 144 182 180 126 184 C72 189 40 152 48 110 C55 70 75 48 119 43 Z',
+      cloud:'M115 44 C138 27 163 42 170 60 C197 56 210 79 202 101 C223 121 206 146 188 151 C180 182 145 187 125 178 C97 198 67 182 62 165 C36 158 30 131 45 116 C30 91 49 72 69 73 C76 50 95 44 115 44 Z',
+      blob:'M121 46 C155 32 190 54 198 85 C215 121 195 159 168 176 C142 194 117 173 94 186 C58 191 41 155 47 119 C53 78 82 52 121 46 Z'
+    };
+    const ears=m.ears==='ear'
+      ? `<path d="M68 86 Q49 35 76 42 Q96 47 104 67 Z" fill="${m.shade}"/><path d="M160 64 Q185 27 200 55 Q201 73 181 95 Z" fill="${m.shade}"/><path d="M70 72 L74 55 L89 68 Z" fill="#fff" opacity=".55"/>`
+      : m.ears==='antenna'
+      ? `<path d="M102 61 L89 28 M152 63 L169 31" stroke="${m.shade}" stroke-width="9" stroke-linecap="round"/><circle cx="87" cy="24" r="13" fill="${m.pale}"/><circle cx="171" cy="29" r="11" fill="${m.pale}"/>`
+      : `<path d="M68 88 Q62 48 93 61 L108 78 Z M152 68 Q185 45 190 78 L180 96 Z" fill="${m.shade}"/>`;
+    const rarityDecor=m.need ? '<path d="M127 51 l5 10 12 2-9 9 2 12-10-6-11 6 2-12-9-9 13-2Z" fill="#fffbe4" stroke="#fff" stroke-width="2"/>' : '';
+    return `<svg class="${className}" viewBox="0 0 248 211" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="可爱的${safeHTML(m.name)}怪兽">
+      <defs><linearGradient id="g-${m.id}" x1=".1" x2=".8" y1="0" y2="1"><stop offset="0" stop-color="${m.pale}"/><stop offset=".43" stop-color="${m.color}"/><stop offset="1" stop-color="${m.shade}"/></linearGradient></defs>
+      <ellipse cx="125" cy="198" rx="73" ry="10" fill="#7185ab" opacity=".1"/>
+      <path d="M78 151 Q60 151 54 166 Q50 181 70 180 L98 174 Z M166 164 Q185 149 197 168 Q202 181 185 185 L151 177 Z" fill="${m.shade}"/>
+      ${ears}
+      <path d="${shapes[m.shape]}" fill="url(#g-${m.id})" stroke="${m.shade}" stroke-width="2.1"/>
+      <ellipse cx="85" cy="82" rx="26" ry="15" fill="#fff" opacity=".19" transform="rotate(-35 85 82)"/>
+      <circle cx="86" cy="125" r="14" fill="#ff8c9a" opacity=".29"/><circle cx="164" cy="125" r="14" fill="#ff8c9a" opacity=".29"/>
+      <ellipse cx="96" cy="111" rx="10" ry="13" fill="#35365f"/><ellipse cx="152" cy="110" rx="10" ry="13" fill="#35365f"/>
+      <circle cx="99" cy="106" r="3.6" fill="#fff"/><circle cx="155" cy="105" r="3.6" fill="#fff"/>
+      <path d="M113 134 Q125 147 138 133" fill="none" stroke="#62486d" stroke-width="4.5" stroke-linecap="round"/>
+      <circle cx="78" cy="101" r="3" fill="#fff" opacity=".7"/><circle cx="175" cy="140" r="3.3" fill="#fff" opacity=".6"/>
+      ${rarityDecor}
+      </svg>`;
+  }
+  function toothSVG() {
+    return '<svg viewBox="0 0 25 28" aria-hidden="true"><path d="M12.5 4 C17 -1 25 4 24 10 C23 16 20 25 17 25 C14 25 16 17 12.5 17 C9 17 11 25 8 25 C5 25 2 17 1 10 C0 4 8 -1 12.5 4Z" fill="#fff" stroke="#90bfd5" stroke-width="2"/></svg>';
+  }
+  function mouthMap(zoneIndex) {
+    // 屏幕左侧=孩子自己的左侧，而不是镜像左右。
+    return `<div class="mouth-grid" role="img" aria-label="口腔分区，高亮的是你自己的${ZONES[zoneIndex]}牙齿">
+      ${[1,0,2,3].map(i=>`<div class="mouth-area ${zoneIndex===i?'active':''}">
+        <div class="teeth">${toothSVG().repeat(3)}</div><span class="area-name">${ZONES[i]}</span>
+      </div>`).join('')}
+    </div>`;
+  }
+  function renderHome() {
+    const today=data.records[dayKey()] || {};
+    const hasSession=!!data.session;
+    const next=nextUnlock();
+    root.innerHTML=`${topbar()}${errorBanner()}
+      <section class="home-hero" aria-labelledby="hero-title">
+        <div class="overline">SMILE EVERY DAY · 牙齿守护任务</div>
+        <h1 class="hero-title" id="hero-title">刷牙打怪兽<span style="color:#f3a15c">！</span></h1>
+        <div class="hero-copy">拿好小牙刷，一起把细菌怪兽赶跑！</div>
+        <div class="monsters-party" aria-hidden="true">
+          <div class="mini-party">${monsterSVG(MONSTERS[1], 'party-svg')}</div>
+          <div class="mini-party">${monsterSVG(MONSTERS[0], 'party-svg')}</div>
+          <div class="mini-party">${monsterSVG(MONSTERS[3], 'party-svg')}</div>
+        </div><div class="home-floor"></div>
+      </section>
+      <section class="session-card card">
+        <div class="sec-heading"><span>今天想挑战哪一场？</span><small>早晚各得一颗星 ⭐</small></div>
+        <div class="slot-switch" role="group" aria-label="选择早上或晚上刷牙">
+          <button class="slot ${selectedSlot==='morning'?'selected':''}" data-action="select-slot" data-slot="morning" aria-pressed="${selectedSlot==='morning'}">☀️ 早安刷牙 ${today.morning?'<span class="done-mark">✓</span>':''}</button>
+          <button class="slot ${selectedSlot==='evening'?'selected':''}" data-action="select-slot" data-slot="evening" aria-pressed="${selectedSlot==='evening'}">🌙 晚安刷牙 ${today.evening?'<span class="done-mark">✓</span>':''}</button>
+        </div>
+        <div class="home-primary"><button class="primary-btn" data-action="${hasSession?'resume':'start'}">${hasSession?'▶ 继续刷牙':'🪥 开始刷牙'}</button></div>
+        <div class="btn-caption">${hasSession?`已保存上次进度 · 第${data.session.zoneIndex+1}/4关 · 点击继续`:`全程自动换区 · ${clockText(progressDuration(data.settings.durations))} · 有语音提醒`}</div>
+      </section>
+      <section class="home-stats">
+        <button class="stat-card" data-action="collection" aria-label="打开怪兽图鉴"><span><span class="stat-label">怪兽图鉴 ↗</span><span class="stat-number">${data.unlocked.length}<span style="font-size:14px;color:#9ca9c1"> / ${MONSTERS.length}</span></span></span><span class="stat-icon">📖</span></button>
+        <div class="stat-card"><span><span class="stat-label">连续刷牙</span><span class="stat-number">${currentStreak()} <span style="font-size:14px">天</span></span></span><span class="stat-icon">🔥</span></div>
+      </section>
+      <p class="home-note">${next?`连续打卡 ${next.need} 天，解锁 ${next.name} ✨`:'稀有怪兽已经全部解锁！真了不起！'}<br>小提示：家长长按右上角的锁进入设置</p>`;
+    attachGate();
+  }
+  function selectMonster(index) {
+    const unlocked=MONSTERS.filter(m => m.zone===index && data.unlocked.includes(m.id));
+    const all=[MONSTERS[index],...unlocked.filter(m=>m.need)];
+    // 随着收集进度变化，下一次挑战会轮换出现新怪兽。
+    const played=allStars();
+    return all[played%all.length];
+  }
+  function beginSession() {
+    sound.init();
+    data.session={ day:dayKey(), slot:selectedSlot, durations:[...data.settings.durations], zoneIndex:0,
+      elapsedMs:0, phase:'paused', monsterId:selectMonster(0).id };
+    saveData();
+    resumeSession();
+  }
+  function resumeSession() {
+    if (!data.session) return renderHome();
+    if (transitionTimer) { clearTimeout(transitionTimer);transitionTimer=null; }
+    data.session.phase='running';
+    view='game'; warnedAtTen=-1;
+    lastTick=Date.now(); lastSaved=lastTick;
+    saveData();
+    renderGame();
+    sound.play();
+    sound.say(`现在刷你的${ZONES[data.session.zoneIndex]}牙！${ZONE_GUIDES[data.session.zoneIndex]}`);
+    requestWakeLock();
+  }
+  function renderGame() {
+    const s=data.session;
+    if (!s) return renderHome();
+    const m=MONSTERS.find(x=>x.id===s.monsterId) || MONSTERS[s.zoneIndex];
+    const isPaused=s.phase==='paused';
+    root.innerHTML=`${topbar({game:true})}${errorBanner()}
+      <div class="game-title-line"><div><div class="game-kicker">牙齿守护任务 · 第 ${s.zoneIndex+1}/4 关</div><h1 class="game-title">刷你的${ZONES[s.zoneIndex]}牙！</h1></div><div class="total-clock" id="totalClock">${clockText(progressDuration(s.durations))}</div></div>
+      <div class="progress-track" role="progressbar" aria-label="整场刷牙进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="totalProgress"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="phase-pills">${ZONES.map((z,i)=>`<div class="phase-pill ${i===s.zoneIndex?'active':i<s.zoneIndex?'passed':''}">${i<s.zoneIndex?'✓ ':''}${z}</div>`).join('')}</div>
+      <section class="arena" id="arena" aria-label="细菌怪兽的战斗画面">
+        <div class="arena-top"><span class="monster-chip">👾 ${m.name} · ${m.rarity}</span><span class="monster-hp-text">怪兽能量 ↓</span></div>
+        <div class="hp-track" role="progressbar" aria-label="怪兽剩余能量" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" id="hpProgress"><div class="hp-fill" id="hpFill"></div></div>
+        <div class="monster-stage" id="monsterStage">${monsterSVG(m)}<i class="bubble"></i><i class="bubble"></i><i class="bubble"></i><i class="bubble"></i><i class="bubble"></i></div>
+        <div class="timer-line"><span class="timer-number" id="secondsRemaining">${s.durations[s.zoneIndex]}</span><span class="timer-unit">秒</span></div>
+        <div class="timer-explain">${isPaused?'暂停中 · 准备好就继续':'坚持刷牙，怪兽就会变成泡泡！'}</div>
+        <div class="defeat-ribbon" id="defeatRibbon">🫧 怪兽飞走啦！</div>
+      </section>
+      <section class="card map-card"><div class="map-intro"><strong>🦷 刷牙地图</strong><p>跟着发亮的小牙齿刷<br>左右按你自己来算</p></div>${mouthMap(s.zoneIndex)}</section>
+      <div class="voice-banner" role="status" aria-live="polite"><span class="voice-emoji">🔈</span><span id="voiceText">${isPaused?'已暂停，准备好再继续。':ZONE_GUIDES[s.zoneIndex]}</span></div>
+      <div class="bottom-actions"><button class="secondary-btn" data-action="${isPaused?'resume':'pause'}">${isPaused?'▶ 继续刷牙':'⏸ 暂停一下'}</button>${isPaused?'<button class="secondary-btn" data-action="quit">✕ 结束本次</button>':''}</div>`;
+    updateGameProgress();
+  }
+  function setVoiceText(text) {
+    const el=root.querySelector('#voiceText');
+    if (el) el.textContent=text;
+  }
+  function updateGameProgress() {
+    const s=data.session;
+    if (!s || view!=='game') return;
+    const targetMs=s.durations[s.zoneIndex]*1000;
+    const remain=Math.max(0,targetMs-s.elapsedMs);
+    const before=s.durations.slice(0,s.zoneIndex).reduce((a,b)=>a+b,0)*1000;
+    const total=progressDuration(s.durations)*1000;
+    const percent=Math.min(100,(before+s.elapsedMs)/total*100);
+    const hp=Math.max(0,Math.min(100,remain/targetMs*100));
+    const seconds=root.querySelector('#secondsRemaining'); if(seconds) seconds.textContent=Math.ceil(remain/1000);
+    const clock=root.querySelector('#totalClock'); if(clock) clock.textContent=clockText((total-before-s.elapsedMs)/1000);
+    const bar=root.querySelector('#progressFill'); if(bar) bar.style.width=`${percent.toFixed(2)}%`;
+    const hpBar=root.querySelector('#hpFill'); if(hpBar) hpBar.style.width=`${hp.toFixed(2)}%`;
+    const totalEl=root.querySelector('#totalProgress'); if(totalEl) totalEl.setAttribute('aria-valuenow',Math.round(percent));
+    const hpEl=root.querySelector('#hpProgress'); if(hpEl) hpEl.setAttribute('aria-valuenow',Math.round(hp));
+    if(s.phase==='running' && remain<=10000 && warnedAtTen!==s.zoneIndex) {
+      warnedAtTen=s.zoneIndex;
+      setVoiceText('最后 10 秒！快把怪兽赶跑！');
+      sound.say('最后十秒！快把怪兽赶跑！');
+    }
+  }
+  function gameTick() {
+    const s=data.session;
+    if (!s || s.phase!=='running') return;
+    const now=Date.now();
+    s.elapsedMs+=Math.max(0,now-lastTick);
+    lastTick=now;
+    const limit=s.durations[s.zoneIndex]*1000;
+    if (s.elapsedMs>=limit) {
+      s.elapsedMs=limit;
+      updateGameProgress();
+      finishZone();
+      return;
+    }
+    updateGameProgress();
+    if (now-lastSaved>800) { saveData();lastSaved=now; }
+  }
+  function finishZone() {
+    const s=data.session;
+    if (!s || s.phase!=='running') return;
+    sound.effect('pop');
+    const monster=MONSTERS.find(m=>m.id===s.monsterId);
+    if(monster && !data.unlocked.includes(monster.id)) data.unlocked.push(monster.id);
+    const last=s.zoneIndex===3;
+    if (last) {
+      // 让最后一关也出现气泡效果，然后立即落盘奖励，避免刷新丢失。
+      completeSession();
+      return;
+    }
+    const arena=root.querySelector('#arena'); if(arena) arena.classList.add('defeat');
+    const figure=root.querySelector('#monsterStage'); if(figure) figure.classList.add('defeated');
+    const nextZone=s.zoneIndex+1;
+    s.zoneIndex=nextZone; s.elapsedMs=0; s.monsterId=selectMonster(nextZone).id; s.phase='transition';
+    setVoiceText('太棒啦！怪兽变成泡泡啦！');
+    saveData();
+    transitionTimer=window.setTimeout(() => {
+      transitionTimer=null;
+      if (!data.session || data.session.phase!=='transition') return;
+      data.session.phase='running';
+      lastTick=Date.now(); lastSaved=lastTick; warnedAtTen=-1;
+      saveData(); renderGame();
+      sound.say(`打败啦！接下来刷你的${ZONES[data.session.zoneIndex]}牙！${ZONE_GUIDES[data.session.zoneIndex]}`);
+    }, 1050);
+  }
+  function completeSession() {
+    const s=data.session;
+    if (!s) return;
+    const already=!!data.records[s.day]?.[s.slot];
+    if (!data.records[s.day]) data.records[s.day]={};
+    if (!already) data.records[s.day][s.slot]={at:new Date().toISOString(),seconds:progressDuration(s.durations)};
+    const newMonsters=syncRareUnlocks();
+    latestReward={newStar:!already,unlocked:newMonsters,slot:s.slot,duration:progressDuration(s.durations)};
+    data.session=null;
+    saveData();
+    releaseWakeLock(); sound.stop(); sound.effect('win');
+    view='victory'; renderVictory();
+    sound.say(already?'又一次打败细菌怪兽！今天这一场的星星已经拿过了。':'太棒啦！四个地方都刷得亮晶晶！你得到一颗星星！');
+  }
+  async function requestWakeLock() {
+    if (!('wakeLock' in navigator) || document.hidden) return;
+    try { wakeLock=await navigator.wakeLock.request('screen'); }
+    catch (_) { /* permission can be unavailable in browsers and local files */ }
+  }
+  function releaseWakeLock() {
+    if(wakeLock) { try { wakeLock.release().catch(()=>{}); } catch (_) {} wakeLock=null; }
+  }
+  function pauseSession() {
+    if (!data.session) return;
+    if(data.session.phase==='running') gameTick();
+    if (!data.session) return;
+    if(transitionTimer) { clearTimeout(transitionTimer);transitionTimer=null; }
+    data.session.phase='paused';
+    saveData(); releaseWakeLock(); sound.stop();
+    if (view==='game') renderGame();
+  }
+  function quitSession() {
+    if (!data.session) return;
+    if(!window.confirm('结束这次刷牙吗？没刷完就不会获得星星，已收集的怪兽会保留。')) return;
+    if(transitionTimer) clearTimeout(transitionTimer);
+    transitionTimer=null;
+    data.session=null; saveData();releaseWakeLock();sound.stop();
+    view='home';renderHome();
+  }
+  function renderVictory() {
+    const r=latestReward || {newStar:true,unlocked:[],slot:selectedSlot,duration:progressDuration(data.settings.durations)};
+    root.innerHTML=`${topbar({parent:true})}${errorBanner()}
+      <main class="victory"><div class="star-dazzle" aria-hidden="true">${r.newStar?'🌟':'✨'}</div>
+      <h1>${r.newStar?'哇！获得一颗星星！':'超级棒！又赢啦！'}</h1>
+      <div class="victory-lead">四个地方都打扫干净啦！<br>${r.newStar?'你是今天的刷牙小英雄！':'这个时段的星星已领取，明天继续加油！'}</div>
+      <div class="reward-card card"><div class="sec-heading"><span>我的刷牙战绩</span><small>${r.slot==='morning'?'☀️ 早安':'🌙 晚安'}</small></div>
+        <div class="reward-stats"><div class="reward-stat"><strong>⭐ ${allStars()}</strong><small>累计星星</small></div><div class="reward-stat"><strong>🔥 ${currentStreak()}</strong><small>连续打卡天数</small></div></div>
+        ${r.unlocked.length?`<div class="unlock-toast">🎁 新怪兽加入图鉴：${r.unlocked.map(m=>safeHTML(m.name)).join('、')}！</div>`:'<div class="unlock-toast">🫧 赶跑了四只细菌怪兽！打开图鉴看看它们吧。</div>'}
+      </div>
+      <button class="primary-btn" data-action="home">🏠 返回牙牙星球</button>
+      <button class="secondary-btn" style="width:100%;margin-top:20px" data-action="collection">📖 打开我的怪兽图鉴</button>
+      </main>`;
+  }
+  function renderCollection() {
+    const next=nextUnlock();
+    root.innerHTML=`${topbar({parent:true})}${errorBanner()}
+      <h1 class="page-h">📖 怪兽图鉴</h1>
+      <p class="page-sub">每赶跑一只怪兽，就能把它收进图鉴。坚持每天刷牙，还会遇到稀有怪兽！<br>已收集 <strong style="color:#506bd7">${data.unlocked.length}/${MONSTERS.length}</strong> ${next?`· 下一只要连续 ${next.need} 天`:'· 全部解锁啦！'}</p>
+      <div class="collection-grid">${MONSTERS.map(m=>{
+        const unlocked=data.unlocked.includes(m.id);
+        return `<div class="monster-card ${unlocked?'':'locked'}" aria-label="${unlocked?m.name:'尚未解锁'}">
+          ${monsterSVG(m,'album-svg')}
+          <span class="rarity-pill ${m.rarity==='稀有'?'rare':m.rarity==='传说'?'legendary':''}">${m.rarity}</span>
+          <div class="monster-name">${unlocked?m.name:'神秘怪兽'}</div>
+          <div class="monster-requirement">${unlocked?'✓ 已收录':m.need ? `连续 ${m.need} 天解锁` : `刷完${ZONES[m.zone]}区域解锁`}</div>
+        </div>`;
+      }).join('')}</div>
+      <button class="secondary-btn" data-action="home" style="width:100%;margin-top:16px">返回首页</button>`;
+  }
+  function attachGate() {
+    const btn=root.querySelector('#parentGate');
+    if(!btn) return;
+    const cancel=()=>{ if(holdTimer) clearTimeout(holdTimer); holdTimer=null; btn.classList.remove('holding'); };
+    btn.addEventListener('pointerdown',e=>{
+      if(e.pointerType==='mouse' && e.button!==0) return;
+      cancel();btn.classList.add('holding');
+      holdTimer=window.setTimeout(()=>{ cancel();sound.stop();openGate(); },2200);
+    });
+    ['pointerup','pointercancel','pointerleave'].forEach(type=>btn.addEventListener(type,cancel));
+    btn.addEventListener('contextmenu',e=>e.preventDefault());
+    btn.addEventListener('click',e=>e.preventDefault());
+  }
+  function openGate() {
+    const options=[[7,8],[8,6],[9,7],[6,9],[8,9]];
+    const pair=options[Math.floor(Math.random()*options.length)];
+    question={a:pair[0],b:pair[1]};
+    view='gate'; renderGate();
+  }
+  function renderGate(message='') {
+    root.innerHTML=`${topbar({parent:true})}
+      <main class="gate-page"><div class="gate-lock">👨‍👩‍👧‍👦</div><h1 class="page-h">家长专属入口</h1>
+      <p class="page-sub">给大人出一道乘法题，答对才能查看记录和设置时间。</p>
+      <div class="gate-form"><form id="gateForm"><label for="gateAnswer" style="display:block;color:#8998b2;font-size:13px;font-weight:900">请计算</label>
+        <div class="gate-equation">${question.a} × ${question.b} = ?</div>
+        <input class="gate-input" id="gateAnswer" type="number" pattern="[0-9]*" inputmode="numeric" required placeholder="答案" autocomplete="off" aria-label="家长验证乘法答案">
+        <button class="primary-btn" type="submit" style="min-height:56px;font-size:17px">进入家长专区</button><div class="inline-note" id="gateError" aria-live="polite">${safeHTML(message)}</div>
+      </form></div><button class="secondary-btn" data-action="home">返回游戏</button></main>`;
+    root.querySelector('#gateForm').addEventListener('submit',e=>{
+      e.preventDefault();
+      if(Number(root.querySelector('#gateAnswer').value)===question.a*question.b) {view='parent';renderParent();}
+      else { root.querySelector('#gateError').textContent='再检查一下答案哦。';root.querySelector('#gateAnswer').value=''; }
+    });
+  }
+  function thirtyDays() {
+    const date=new Date();date.setHours(12,0,0,0);
+    return Array.from({length:30},(_,i)=>{const d=new Date(date);d.setDate(date.getDate()-i);return d;});
+  }
+  function renderParent() {
+    const dates=thirtyDays();
+    const total=dates.reduce((sum,d)=>sum+Number(!!data.records[dayKey(d)]?.morning)+Number(!!data.records[dayKey(d)]?.evening),0);
+    const full=dates.filter(d=>data.records[dayKey(d)]?.morning && data.records[dayKey(d)]?.evening).length;
+    const everyDay=dates.filter(d=>!!data.records[dayKey(d)]).length;
+    root.innerHTML=`${topbar({parent:true})}${errorBanner()}
+      <h1 class="page-h">👨‍👩‍👧 家长中心</h1>
+      <p class="page-sub">刷牙记录只存在这台设备的当前浏览器中。</p>
+      <div class="parent-banner">🌟 每天早上和晚上最多各得一颗星星；同一时段重复游戏不重复计分。每天完成至少一次算连续打卡一天。</div>
+      <div class="parent-stats"><div class="parent-stat"><strong>${total}</strong><small>近30天刷牙次数</small></div><div class="parent-stat"><strong>${everyDay}</strong><small>有刷牙的天数</small></div><div class="parent-stat"><strong>${full}</strong><small>早晚都刷的天数</small></div></div>
+      <section class="parent-block card"><h2>📅 最近 30 天</h2><p>✓ 代表该时段已完成；— 代表没有记录（不是实际刷牙检测）。</p>
+        <div class="history-list" aria-label="最近30天早晚刷牙记录"><div class="history-row header"><span>日期</span><span>☀️ 早上</span><span>🌙 晚上</span></div>
+        ${dates.map(d=>{const k=dayKey(d);const r=data.records[k]||{};const label=`${d.getMonth()+1}月${d.getDate()}日 ${'日一二三四五六'[d.getDay()]}`;
+          return `<div class="history-row"><span>${label}</span><span>${r.morning?'<span class="check-yes">✓</span>':'<span class="check-no">—</span>'}</span><span>${r.evening?'<span class="check-yes">✓</span>':'<span class="check-no">—</span>'}</span></div>`;}).join('')}
+        </div>
+      </section>
+      <section class="parent-block card"><h2>⏱ 调整每个区域的时长</h2><p>每个区域可设置 10～90 秒，每次加减 5 秒。下次开始的新游戏生效。</p>
+        ${data.settings.durations.map((duration,i)=>`<div class="duration-row"><span class="duration-name">${i+1}. ${ZONES[i]}</span>
+          <div class="duration-control"><button class="adjust-btn" data-action="adjust" data-index="${i}" data-step="-5" aria-label="缩短${ZONES[i]}时长" ${duration<=10?'disabled':''}>−</button>
+          <span class="duration-value">${duration} 秒</span>
+          <button class="adjust-btn" data-action="adjust" data-index="${i}" data-step="5" aria-label="增加${ZONES[i]}时长" ${duration>=90?'disabled':''}>+</button></div></div>`).join('')}
+        <p style="margin:12px 0 0;text-align:right;font-weight:800;color:#566bc4">全程共 ${clockText(progressDuration(data.settings.durations))}</p>
+        <div class="tools-row"><button class="secondary-btn" data-action="reset-durations">恢复每区30秒</button></div>
+      </section>
+      <section class="parent-block card"><h2>🗂 记录备份</h2><p>可把记录导出成 JSON 文件；更换浏览器或设备时，请手动导入备份。</p>
+        <div class="tools-row"><button class="secondary-btn" data-action="export">⬇ 导出备份</button><button class="secondary-btn" data-action="import">⬆ 导入备份</button>
+          <input type="file" id="importFile" accept="application/json,.json" hidden></div>
+      </section>
+      <p class="parent-disclaimer">本游戏是计时与动作提示工具，不能自动确认孩子是否真正刷牙。建议家长帮助小朋友使用含氟牙膏并监督刷牙。浏览器隐私模式、清除网站数据或换设备可能导致本地记录消失。</p>
+      <button class="secondary-btn" data-action="home" style="width:100%;margin:15px 0 25px">完成，返回游戏</button>`;
+    const input=root.querySelector('#importFile');
+    input.addEventListener('change',async e=>{
+      const file=e.target.files?.[0]; if(!file) return;
+      try {
+        if(file.size>2_000_000) throw Error('文件太大。');
+        const parsed=JSON.parse(await file.text());
+        if(parsed.version!==1 || !parsed.records || typeof parsed.records!=='object') throw Error('文件格式不正确。');
+        if(!window.confirm('确认导入并替换这台设备当前的刷牙记录和设置吗？')) return;
+        const restored=cleanData(parsed); restored.session=null;
+        data=restored; saveData(); renderParent();
+        window.alert('导入完成！');
+      } catch(e) {window.alert(`导入失败：${e.message||'文件不可用'}`);}
+    });
+  }
+  function exportRecords() {
+    const backup={version:1,exportedAt:new Date().toISOString(),records:data.records,settings:data.settings,unlocked:data.unlocked};
+    const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=`刷牙打怪兽_记录_${dayKey()}.json`;
+    document.body.appendChild(a);a.click();a.remove();window.setTimeout(()=>URL.revokeObjectURL(url),2500);
+  }
+  function showScreen(next) {
+    view=next;
+    if(next==='home') renderHome();
+    else if(next==='collection') renderCollection();
+    else if(next==='parent') renderParent();
+    else if(next==='game') renderGame();
+  }
+  root.addEventListener('click',e=>{
+    const btn=e.target.closest('[data-action]');
+    if(!btn || btn.disabled) return;
+    const action=btn.dataset.action;
+    if(action==='home') { if(data.session && data.session.phase!=='paused') pauseSession();sound.stop();showScreen('home'); }
+    else if(action==='start') beginSession();
+    else if(action==='resume') resumeSession();
+    else if(action==='pause') pauseSession();
+    else if(action==='quit') quitSession();
+    else if(action==='select-slot') { selectedSlot=btn.dataset.slot;renderHome(); }
+    else if(action==='collection') { if(data.session?.phase==='running') pauseSession();sound.stop();showScreen('collection'); }
+    else if(action==='sound') {
+      data.settings.sound=!data.settings.sound;saveData();
+      if(data.settings.sound) {sound.init();sound.play();if(data.session) sound.say(ZONE_GUIDES[data.session.zoneIndex]);}
+      else sound.stop();
+      if(view==='game') renderGame();
+    }
+    else if(action==='adjust') {
+      const i=Number(btn.dataset.index),step=Number(btn.dataset.step);
+      if(!Number.isInteger(i)||i<0||i>3||![-5,5].includes(step)) return;
+      data.settings.durations[i]=Math.max(10,Math.min(90,data.settings.durations[i]+step));
+      saveData();renderParent();
+    }
+    else if(action==='reset-durations') {data.settings.durations=[30,30,30,30];saveData();renderParent();}
+    else if(action==='export') exportRecords();
+    else if(action==='import') root.querySelector('#importFile')?.click();
+  });
+  window.addEventListener('pagehide',()=>{ if(data.session && data.session.phase!=='paused') pauseSession(); });
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden && data.session && data.session.phase!=='paused') pauseSession();
+  });
+  window.setInterval(gameTick,100);
+  // 重载页面时仍保留当前区与已刷时间，但绝不把离开页面的时长算作刷牙时间。
+  if (data.session) { data.session.phase='paused';saveData(); }
+  syncRareUnlocks(); saveData();
+  renderHome();
+  // 单文件体验版没有 sw.js 或 PWA 清单；不要注册不存在的资源。
+  // 需要离线安装能力时，请使用完整 PWA 工程。
+})();
+
+</script>
+</body>
+</html>
